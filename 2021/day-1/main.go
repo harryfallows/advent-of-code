@@ -41,46 +41,24 @@ func main() {
 
 	file.Seek(0, io.SeekStart)
 	scanner = bufio.NewScanner(file)
-	window := [4]int{}
-	firstSum := 0
-	secondSum := 0
-	ok := true
+	window := make([]int, 0)
 	dropCount = 0
 
-	for i := 0; i <= 3; i++ {
-		ok = scanner.Scan()
-		if !ok {
-			log.Fatalf("Not enough inputs")
-		}
-		window[i], err = strconv.Atoi(scanner.Text())
+	for i := 0; scanner.Scan(); i++ {
+		currDepth, err := strconv.Atoi(scanner.Text())
 		if err != nil {
 			log.Fatalf("File contains non-integer value: %s", scanner.Text())
 		}
+		window = append(window, currDepth)
 		if i < 3 {
-			firstSum += window[i]
+			continue
 		}
-		if i > 0 {
-			secondSum += window[i]
-		}
-	}
-
-	for ok {
-		if firstSum < secondSum {
+		if window[3] > window[0] {
 			dropCount++
 		}
-		ok = scanner.Scan()
-		if !ok {
-			break
+		if i > 3 {
+			window = window[1:]
 		}
-		firstSum -= window[0]
-		secondSum -= window[1]
-		copy(window[:3], window[1:])
-		window[3], err = strconv.Atoi(scanner.Text())
-		if err != nil {
-			log.Fatalf("File contains non-integer value: %s", scanner.Text())
-		}
-		firstSum += window[2]
-		secondSum += window[3]
 	}
 
 	fmt.Printf("Answer: %d\n", dropCount)
